@@ -1,0 +1,9 @@
+{
+  "name": "proofline",
+  "version": "0.2.0",
+  "description": "Review local changes with Proofline before a push, read a pull request's findings, follow a repository's review guidance and run Proofline setup.",
+  "author": { "name": "Proofline", "url": "https://proofline.sh" },
+  "homepage": "https://proofline.sh/docs/coding-agents/",
+  "repository": "https://github.com/prooflinedev/skills",
+  "license": "Apache-2.0"
+}

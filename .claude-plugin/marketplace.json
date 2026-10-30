@@ -1,0 +1,19 @@
+{
+  "name": "proofline",
+  "owner": {
+    "name": "Proofline",
+    "url": "https://proofline.sh"
+  },
+  "metadata": {
+    "description": "Proofline's skills and plugin for coding agents."
+  },
+  "plugins": [
+    {
+      "name": "proofline",
+      "source": "./plugins/proofline",
+      "description": "Review local changes with Proofline before a push, read a pull request's findings, follow a repository's review guidance and run Proofline setup.",
+      "version": "0.2.0",
+      "homepage": "https://proofline.sh/docs/coding-agents/"
+    }
+  ]
+}

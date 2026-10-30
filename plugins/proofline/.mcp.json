@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "proofline": {
+      "command": "proofline",
+      "args": ["--base-url", "${PROOFLINE_BASE_URL:-https://proofline.sh}", "mcp"]
+    }
+  }
+}
