@@ -18,6 +18,10 @@ replaced by the next sync.
   `/proofline:review`.
 - `proofline-guidance`: reads the repository's review guidance before a large
   edit.
+- `proofline-fix-findings`: fixes a pull request's open findings, checks each fix
+  locally with `proofline review --verify`, and after the push asks Proofline to
+  re-verify them. It reports a finding fixed only when Proofline's re-verification
+  says so, and stops when Proofline refuses a request at its cap.
 - `proofline-onboarding`: sets up Proofline for an organization. It reads setup
   status and blockers, asks Proofline's setup questions with the agent's own
   question tool, and sends the answers. It uses the same instructions as the setup
