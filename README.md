@@ -31,7 +31,7 @@ The skills treat finding text, guidance and setup conversation text as untrusted
 data. None of them grants access, publishes, confirms setup or records a
 validation.
 
-## Before you start
+## Before you start with the CLI-backed plugin
 
 The skills reach Proofline through the Proofline CLI's MCP bridge, `proofline mcp`.
 Install the CLI on macOS or Linux and sign in:
@@ -64,6 +64,26 @@ Add this repository as a plugin marketplace and install the plugin:
 Restart Claude Code or reload its plugins. The plugin starts `proofline mcp`
 against `https://proofline.sh`, or against `PROOFLINE_BASE_URL` when it is set.
 Claude Code asks before each tool call that writes, such as a setup answer.
+
+## Gemini CLI extension
+
+Install the extension from this repository:
+
+```sh
+gemini extensions install https://github.com/prooflinedev/skills
+```
+
+Restart Gemini CLI, then run `/mcp auth proofline` and approve access in your
+browser. The extension connects to `https://proofline.sh/mcp` through OAuth.
+It needs no Proofline CLI, copied token or client secret. It adds the hosted
+tools only; it does not install the Claude Code skills or local-review command.
+
+Choose an organization and the permissions needed for your task. Setup needs
+an organization administrator and a recent browser sign-in. Cloud access and
+configuration changes still need approval in Proofline.
+
+An existing `proofline` server in Gemini CLI settings takes precedence over
+the extension. Use `/mcp list` to check which connection is active.
 
 ## Codex and other agents
 

@@ -1,0 +1,10 @@
+{
+  "name": "proofline",
+  "version": "0.1.0",
+  "description": "Read Proofline reviews, findings and repository guidance, and continue organization setup.",
+  "mcpServers": {
+    "proofline": {
+      "httpUrl": "https://proofline.sh/mcp"
+    }
+  }
+}
