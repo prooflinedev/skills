@@ -85,6 +85,26 @@ configuration changes still need approval in Proofline.
 An existing `proofline` server in Gemini CLI settings takes precedence over
 the extension. Use `/mcp list` to check which connection is active.
 
+## Antigravity
+
+Install the plugin, then open Antigravity:
+
+```sh
+agy plugin install https://github.com/prooflinedev/skills
+agy
+```
+
+Open `/mcp` and authenticate `proofline_proofline` in your browser. Choose the
+organization and permissions for your task. The plugin connects directly to
+Proofline's hosted MCP server; it does not require the Proofline CLI or install
+the Claude Code skills.
+
+Antigravity asks before MCP calls. In headless runs, grant only the tools your
+task needs through Antigravity's per-tool permissions. An authenticated server
+does not by itself approve tool execution. Setup also requires a recent browser
+sign-in and administrator authority. Cloud access and configuration changes
+remain separate browser approvals.
+
 ## Codex and other agents
 
 Connect the agent to Proofline first:

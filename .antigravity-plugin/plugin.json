@@ -1,0 +1,20 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "proofline",
+  "displayName": "Proofline",
+  "version": "0.1.0",
+  "description": "Read Proofline reviews, findings and repository guidance, and continue organization setup.",
+  "logo": "assets/proofline.svg",
+  "suggestedPrompts": [
+    "Read the Proofline review of my pull request. Include the reviewed commit and missing evidence.",
+    "Check my Proofline setup status and explain the next required approval."
+  ],
+  "author": {
+    "name": "Proofline",
+    "url": "https://proofline.sh"
+  },
+  "homepage": "https://proofline.sh/docs/coding-agents/",
+  "repository": "https://github.com/prooflinedev/skills",
+  "license": "Apache-2.0",
+  "keywords": ["proofline", "code-review", "infrastructure"]
+}
