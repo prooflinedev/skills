@@ -1,6 +1,3 @@
-# Installed as .github/workflows/sync.yml in prooflinedev/skills. Its source is
-# apps/saas/clients/agent-plugins/skills-sync.yml in prooflinedev/proofline.
-#
 # Every hour, replace this repository's tree, except .github/, with the one
 # proofline.sh publishes at /.well-known/agent-skills/repository.json. The
 # marketing site builds that file from the monorepo on each deployment, so a
