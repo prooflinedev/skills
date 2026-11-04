@@ -5,10 +5,11 @@ Proofline, follow a repository's review guidance and run Proofline setup.
 The skills hold instructions and configuration only. Proofline's server
 authorizes every call they make, so a skill grants no access of its own.
 
-This repository is generated from Proofline's source and syncs itself from
-proofline.sh every hour. Report problems at
-<https://github.com/prooflinedev/skills/issues>; changes made here directly are
-replaced by the next sync.
+## Contributing
+
+The skill bundles and host manifests are generated. [Open an issue](https://github.com/prooflinedev/skills/issues)
+to report a problem or request a change to them. Pull requests are welcome for hand-written
+repository maintenance files under `.github/`. The hourly sync preserves that directory.
 
 ## Skills
 
