@@ -1,0 +1,65 @@
+name: Release command fixes
+on:
+  push:
+    branches: [main]
+    paths: [plugins/proofline/commands/review.md]
+  pull_request:
+    paths:
+      - .github/scripts/release-command
+      - .github/workflows/command-release.yml
+      - plugins/proofline/commands/review.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check a command-only release and a repeat run
+        run: |
+          git config user.name "Release check"
+          git config user.email "release-check@users.noreply.github.com"
+          git switch --detach
+          command=plugins/proofline/commands/review.md
+          plugin=plugins/proofline/.claude-plugin/plugin.json
+          catalog=.claude-plugin/marketplace.json
+          python3 .github/scripts/release-command
+          git add "$plugin" "$catalog"
+          if ! git diff --cached --quiet; then git commit -m "Prepare current command"; fi
+          printf '\nUse the installed command.\n' >> "$command"
+          git add "$command"
+          git commit -m "Exercise a command fix"
+          python3 .github/scripts/release-command
+          test "$(git diff --name-only | sort)" = "$(printf '%s\n' "$plugin" "$catalog" | sort)"
+          git add "$plugin" "$catalog"
+          git commit -m "Verify the patch version"
+          python3 .github/scripts/release-command
+          git diff --exit-code
+  release:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: check
+    concurrency: release-review-command
+    permissions:
+      contents: write
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - run: python3 .github/scripts/release-command
+      - name: Publish the updated plugin version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add .claude-plugin/marketplace.json plugins/proofline/.claude-plugin/plugin.json
+          if git diff --cached --quiet; then exit 0; fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Release review command fix"
+          git -c credential.helper= -c 'credential.helper=!gh auth git-credential' push origin HEAD:refs/heads/main
