@@ -12,7 +12,7 @@
       "name": "proofline",
       "source": "./plugins/proofline",
       "description": "Review local changes with Proofline before a push, read a pull request's findings, fix them and ask Proofline to re-verify the fixes, follow a repository's review guidance and run Proofline setup.",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "homepage": "https://proofline.sh/docs/coding-agents/"
     }
   ]
