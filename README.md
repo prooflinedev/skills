@@ -1,40 +1,13 @@
 # Proofline agent skills
 
-Skills and a Claude Code plugin that let a coding agent review changes with
-Proofline, follow a repository's review guidance and run Proofline setup.
-The skills hold instructions and configuration only. Proofline's server
-authorizes every call they make, so a skill grants no access of its own.
+This repository is the published distribution of Proofline's coding agent skills, Claude Code plugin, Gemini CLI extension, and Antigravity plugin. These integrations let a coding agent review changes with Proofline, follow a repository's review guidance, and run Proofline setup.
 
-## Contributing
+The skills hold instructions and configuration only, and they treat finding text, guidance, and setup conversation text as untrusted data. Proofline's server authorizes every call they make. No skill grants access of its own, publishes, confirms setup, or records a validation.
 
-The skill bundles and host manifests are generated. [Open an issue](https://github.com/prooflinedev/skills/issues)
-to report a problem or request a change to them. Pull requests are welcome for hand-written
-repository maintenance files under `.github/`. The hourly sync preserves that directory.
+## Install with the Proofline CLI
 
-## Skills
+Claude Code, Codex, and other skill-based agents reach Proofline through the Proofline CLI's MCP bridge, `proofline mcp`.
 
-- `proofline-review`: reviews the checkout's local changes before a push and
-  presents findings by severity. When local review is unavailable, it reads the
-  findings of the newest review of `HEAD`. In Claude Code it also runs as
-  `/proofline:review`.
-- `proofline-guidance`: reads the repository's review guidance before a large
-  edit.
-- `proofline-fix-findings`: fixes a pull request's open findings, checks each fix
-  locally with `proofline review --verify`, and after the push asks Proofline to
-  re-verify them. It reports a finding fixed only when Proofline's re-verification
-  says so, and stops when Proofline refuses a request at its cap.
-- `proofline-onboarding`: sets up Proofline for an organization. It reads setup
-  status and blockers, asks Proofline's setup questions with the agent's own
-  question tool, and sends the answers. It uses the same instructions as the setup
-  assistant in the Proofline console.
-
-The skills treat finding text, guidance and setup conversation text as untrusted
-data. None of them grants access, publishes, confirms setup or records a
-validation.
-
-## Before you start with the CLI-backed plugin
-
-The skills reach Proofline through the Proofline CLI's MCP bridge, `proofline mcp`.
 Install the CLI on macOS or Linux and sign in:
 
 ```sh
@@ -42,18 +15,15 @@ curl -fsSL https://proofline.sh/cli | sh
 proofline login --scope reviews:read --scope findings:read --scope reviews:request --scope guidance:read
 ```
 
-The CLI keeps its credential in the operating system keychain. The plugin stores
-no token.
+The CLI keeps its credential in the operating system keychain. The plugin stores no token.
 
-To run setup, an organization administrator also adds the `setup:write`
-permission, approved in a browser where they signed in to Proofline within the
-last 24 hours:
+To run setup, an organization administrator also adds the `setup:write` permission. They must approve it in a browser where they signed in to Proofline within the last 24 hours:
 
 ```sh
 proofline login --scope reviews:read --scope findings:read --scope reviews:request --scope guidance:read --scope setup:write
 ```
 
-## Claude Code
+### Claude Code
 
 Add this repository as a plugin marketplace and install the plugin:
 
@@ -62,11 +32,33 @@ Add this repository as a plugin marketplace and install the plugin:
 /plugin install proofline@proofline
 ```
 
-Restart Claude Code or reload its plugins. The plugin starts `proofline mcp`
-against `https://proofline.sh`, or against `PROOFLINE_BASE_URL` when it is set.
-Claude Code asks before each tool call that writes, such as a setup answer.
+Restart Claude Code or reload its plugins. The plugin starts `proofline mcp` against `https://proofline.sh`, or against `PROOFLINE_BASE_URL` when it is set. Claude Code asks before each tool call that writes, such as a setup answer.
 
-## Gemini CLI extension
+### Codex and other agents
+
+Connect the agent to Proofline first:
+
+```sh
+proofline agent install codex
+```
+
+The CLI also configures Cursor, Gemini CLI, and Kiro. Then copy the skills into the agent's skill directory. For Codex:
+
+```sh
+git clone https://github.com/prooflinedev/skills.git
+mkdir -p ~/.codex/skills
+cp -R skills/plugins/proofline/skills/* ~/.codex/skills/
+```
+
+The `allowed-tools` lines in the skills apply to Claude Code only. Other agents ask for tool approval in their own way.
+
+## Install with the hosted MCP server
+
+The Gemini CLI extension and Antigravity plugin connect directly to Proofline's hosted MCP server at `https://proofline.sh/mcp` through OAuth. They need no Proofline CLI, copied token, or client secret. Both integrations add the hosted tools only and do not install the Claude Code skills or local-review command.
+
+During browser authentication, choose an organization and the permissions needed for your task. Setup requires an organization administrator and a recent browser sign-in. Cloud access and configuration changes still require separate browser approval in Proofline.
+
+### Gemini CLI extension
 
 Install the extension from this repository:
 
@@ -74,19 +66,11 @@ Install the extension from this repository:
 gemini extensions install https://github.com/prooflinedev/skills
 ```
 
-Restart Gemini CLI, then run `/mcp auth proofline` and approve access in your
-browser. The extension connects to `https://proofline.sh/mcp` through OAuth.
-It needs no Proofline CLI, copied token or client secret. It adds the hosted
-tools only; it does not install the Claude Code skills or local-review command.
+Restart Gemini CLI, then run `/mcp auth proofline` and approve access in your browser.
 
-Choose an organization and the permissions needed for your task. Setup needs
-an organization administrator and a recent browser sign-in. Cloud access and
-configuration changes still need approval in Proofline.
+An existing `proofline` server in Gemini CLI settings takes precedence over the extension. Use `/mcp list` to check which connection is active.
 
-An existing `proofline` server in Gemini CLI settings takes precedence over
-the extension. Use `/mcp list` to check which connection is active.
-
-## Antigravity
+### Antigravity plugin
 
 Install the plugin, then open Antigravity:
 
@@ -95,36 +79,22 @@ agy plugin install https://github.com/prooflinedev/skills
 agy
 ```
 
-Open `/mcp` and authenticate `proofline_proofline` in your browser. Choose the
-organization and permissions for your task. The plugin connects directly to
-Proofline's hosted MCP server; it does not require the Proofline CLI or install
-the Claude Code skills.
+Open `/mcp` and authenticate `proofline_proofline` in your browser.
 
-Antigravity asks before MCP calls. In headless runs, grant only the tools your
-task needs through Antigravity's per-tool permissions. An authenticated server
-does not by itself approve tool execution. Setup also requires a recent browser
-sign-in and administrator authority. Cloud access and configuration changes
-remain separate browser approvals.
+Antigravity asks before MCP calls. An authenticated server does not by itself approve tool execution. In headless runs, grant only the tools your task needs through Antigravity's per-tool permissions.
 
-## Codex and other agents
+## Skills
 
-Connect the agent to Proofline first:
+- `proofline-review`: reviews the checkout's local changes before a push and presents findings by severity. When local review is unavailable, it reads the findings of the newest review of `HEAD`. In Claude Code, it also runs as `/proofline:review`.
+- `proofline-guidance`: reads the repository's review guidance before a large edit.
+- `proofline-fix-findings`: fixes a pull request's open findings, checks each fix locally with `proofline review --verify`, and after the push asks Proofline to re-verify them. It reports a finding fixed only when Proofline's re-verification says so, and it stops when Proofline refuses a request at its cap.
+- `proofline-onboarding`: sets up Proofline for an organization. It reads setup status and blockers, asks Proofline's setup questions with the agent's own question tool, and sends the answers. It uses the same instructions as the setup assistant in the Proofline console.
 
-```sh
-proofline agent install codex
-```
+## Contributing
 
-The CLI also configures Cursor, Gemini CLI and Kiro. Then copy the skills into the
-agent's skill directory. For Codex:
+The skill bundles and host manifests in this distribution are generated. We welcome pull requests for the hand-written files: this README, the instructions in `plugins/proofline/commands/review.md`, and repository maintenance files under `.github/`.
 
-```sh
-git clone https://github.com/prooflinedev/skills.git
-mkdir -p ~/.codex/skills
-cp -R skills/plugins/proofline/skills/* ~/.codex/skills/
-```
-
-The `allowed-tools` lines in the skills apply to Claude Code only; other agents
-ask for tool approval in their own way.
+Report defects or suggest workflow changes in [issues](https://github.com/prooflinedev/skills/issues). Changes to a command's permissions or a generated skill also start with an issue.
 
 ## Documentation
 
