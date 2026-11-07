@@ -2,7 +2,7 @@
 # proofline.sh publishes at /.well-known/agent-skills/repository.json. The
 # marketing site builds that file from the monorepo on each deployment, so a
 # merged skill change reaches this repository within an hour of its deployment.
-# The job writes with this repository's own token and holds no other credential.
+# Updates use a pull request and an explicitly dispatched required check.
 name: Sync
 
 on:
@@ -12,6 +12,8 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
+  actions: write
 
 concurrency:
   group: sync
@@ -23,6 +25,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Select the sync branch
+        run: git switch -c automation/skills-sync-${{ github.run_id }}
       - name: Replace the tree with the published one
         run: |
           curl --fail --silent --show-error --location --retry 3 --max-time 30 \
@@ -47,8 +51,14 @@ jobs:
               Path(path).parent.mkdir(parents=True, exist_ok=True)
               Path(path).write_text(text)
           PY
-      - name: Commit a changed tree
+      - name: Validate the candidate tree
+        run: python3 .github/scripts/validate.py
+      - name: Open and validate the sync pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
+          set -euo pipefail
           git add --all
           if git diff --cached --quiet; then
             echo "The repository already matches proofline.sh."
@@ -57,4 +67,11 @@ jobs:
           git -c user.name="github-actions[bot]" \
             -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
             commit --quiet --message "Sync from https://proofline.sh"
-          git push --quiet origin HEAD:main
+          branch="automation/skills-sync-${{ github.run_id }}"
+          git push --quiet origin "HEAD:refs/heads/$branch"
+          pr=$(gh pr create --base main --head "$branch" \
+            --title "Sync published Proofline skills" \
+            --body "Updates the skill tree from the deployed marketing site. The required check validates the exact branch before merge. Weekly independent review remains required.")
+          # GITHUB_TOKEN-created PRs do not trigger pull_request workflows.
+          gh workflow run ci.yml --ref "$branch"
+          gh pr merge "$pr" --auto --squash --delete-branch
