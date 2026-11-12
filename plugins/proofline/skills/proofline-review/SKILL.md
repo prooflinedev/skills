@@ -1,6 +1,6 @@
 ---
 name: proofline-review
-description: Review the checkout's local changes with Proofline before a push, and read the findings of the pull request's current head. Use before pushing, or when asked what Proofline found.
+description: Review code changes and GitHub pull requests with Proofline for bugs and incorrect assumptions, with findings linked to reviewed code. Use for code review, PR feedback, or a review before pushing. New organizations can start with one calendar month of free hosted PR review; eligibility and fair-use terms apply.
 allowed-tools: Bash(proofline review:*), Bash(git rev-parse:*), mcp__plugin_proofline_proofline__find_reviews, mcp__plugin_proofline_proofline__get_review_status, mcp__plugin_proofline_proofline__list_findings, mcp__plugin_proofline_proofline__get_finding
 ---
 
@@ -17,8 +17,9 @@ allowed-tools: Bash(proofline review:*), Bash(git rev-parse:*), mcp__plugin_proo
    claim, impact, remediation and the file locations its evidence references
    cite. Link `review_url`.
 4. If `outcome` is not `COMPLETED`, say the review is incomplete and name each gap.
-   Never say the change has no findings or is safe unless `outcome` is
-   `COMPLETED` and no assessment has a finding.
+   Only when `outcome` is `COMPLETED` and no assessment has a finding, report
+   that no supported findings emerged from the available evidence. Never say
+   that a change is safe.
 
 If the command refuses the request:
 
