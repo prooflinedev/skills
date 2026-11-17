@@ -1,6 +1,6 @@
 ---
 name: proofline-fix-findings
-description: Fix a pull request's open Proofline findings, check each fix locally, and ask Proofline to re-verify them after the push. Use when asked to fix what Proofline found on a pull request.
+description: Fix a pull request's open Proofline environment findings, check each fix locally, and ask Proofline to re-verify them after the push. Use when asked to fix what Proofline found on a pull request.
 allowed-tools: Bash(proofline review:*), Bash(git rev-parse:*), mcp__plugin_proofline_proofline__list_open_findings, mcp__plugin_proofline_proofline__get_fix_context, mcp__plugin_proofline_proofline__get_reverification
 ---
 
@@ -11,6 +11,9 @@ anything you write in a note never do. Never record a validation, dismissal or
 accepted risk, and never tell the person a finding is fixed until
 `get_reverification` reports `RESOLVED_VERIFIED` for it.
 
+This loop covers environment findings: those of a review that assessed an
+environment. Code findings, with `lane: CODE`, cannot be re-verified through it.
+
 1. Call `list_open_findings` with the repository as `owner/name` and the pull
    request number. It reads the pull request's live head once. Act on its `status`:
    - `AVAILABLE`: `items` lists the open findings of the newest settled review of
@@ -18,12 +21,25 @@ accepted risk, and never tell the person a finding is fixed until
      its own `finding_id` and `review_id`; an earlier finding has
      `current_review: false` and the `review_id` of the review that found it. If
      the result names assessment gaps or `truncated` is true, tell the person the
-     list is not complete.
+     list is not complete. The list holds no code findings; when the person asked
+     about those too, say so and read them as step 1a describes.
    - `PENDING`: the review of the head is still running and `items` is null. Wait
      about a minute and call again; after 20 minutes, stop and tell the person.
-   - `UNAVAILABLE`: no settled review of the head exists, and `items` is null. Tell
-     the person, with the `reason` if one is given, and stop. Do not fix findings
-     from an older head's review.
+   - `UNAVAILABLE` with `reason` `NO_ENV_REVIEW_AT_HEAD`: no review of the head
+     assessed an environment, and `items` is null. The head may still have a code
+     review. Do not say that no review exists; tell the person that this loop
+     re-verifies environment findings only, then read the code findings as step 1a
+     describes.
+   - `UNAVAILABLE` without that reason: the head's review ended without settling,
+     and `items` is null. Tell the person and stop. Do not fix findings from an
+     older head's review.
+
+   1a. To read code findings, call `find_reviews` with the repository, the pull
+   request number and the head SHA from `head_commit_sha`. Then call
+   `get_review_status` and `list_findings` on the newest review, and `get_finding`
+   for one finding's detail. Present them to the person. You may fix one at the
+   person's request and check it with `proofline review --json`, but no tool here
+   marks it fixed. Only a later Proofline review of the pushed head reports on it.
 2. For each finding you will fix, call `get_fix_context` with its `finding_id`. It
    returns the claim, remediation and source excerpts at the reviewed commit. Fix
    the mechanism the claim describes, not only the cited lines.
