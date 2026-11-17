@@ -1,22 +1,30 @@
 #!/usr/bin/env python3
 """Check the deployed snapshot without writing or executing its contents."""
+import base64
 import json
 import sys
 from pathlib import Path, PurePosixPath
 
 root = Path(__file__).resolve().parents[2]
-files = json.loads(Path(sys.argv[1]).read_text())["files"]
+published = json.loads(Path(sys.argv[1]).read_text())
+files = published["files"]
+binary = published.get("binary", {})
 required = {".claude-plugin/marketplace.json", "plugins/proofline/.claude-plugin/plugin.json"}
 if not required <= files.keys():
     raise SystemExit("Published tree has no required manifests")
-for name, text in files.items():
+if files.keys() & binary.keys():
+    raise SystemExit("Published tree lists a file both as text and as bytes")
+for name, text in {**files, **binary}.items():
     parts = PurePosixPath(name).parts
     if str(PurePosixPath(name)) != name or not parts or PurePosixPath(name).is_absolute() or ".." in parts or parts[0] in (".git", ".github"):
         raise SystemExit("Published tree contains an invalid path")
     if not isinstance(text, str):
-        raise SystemExit("Published tree contains a non-text file")
+        raise SystemExit("Published tree contains a malformed file")
+# Images are published in base64; every other file is UTF-8 text.
+files = {name: text.encode() for name, text in files.items()}
+files.update((name, base64.b64decode(text, validate=True)) for name, text in binary.items())
 actual = {
-    p.relative_to(root).as_posix(): p.read_bytes().decode("utf-8")
+    p.relative_to(root).as_posix(): p.read_bytes()
     for p in root.rglob("*")
     if p.is_file() and p.relative_to(root).parts[0] not in (".git", ".github")
 }
