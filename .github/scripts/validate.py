@@ -13,7 +13,7 @@ for path in root.rglob("*"):
         continue
     if path.is_symlink():
         raise SystemExit(f"Symlink is not a published skill file: {path.relative_to(root)}")
-    if path.is_file():
+    if path.is_file() and path.suffix != ".png":
         text = path.read_text()
         if path.suffix == ".json":
             json.loads(text)
