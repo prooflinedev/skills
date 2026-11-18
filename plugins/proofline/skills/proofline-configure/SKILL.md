@@ -172,6 +172,52 @@ rest.
    check is still running; read again when the person asks. Any other status comes
    with a `status_detail`; report it.
 
+## Connect a Google Cloud project
+
+Cloud access is sensitive. An administrator approves the connection and its
+verification; the installer runs with the person's own gcloud sign-in.
+
+1. Settle the project ID and number, environment, and exact cluster or evidence
+   population to read. Find and describe `integration.gcp.create` for GKE or
+   `integration.gcp.evidence.create` for an evidence source. Propose the connection
+   with `propose_change` and give the person its `approval_url`.
+2. After approval, read the organization with `get_configuration`. Find the new
+   entry in `google_cloud_connections` and its `installer`. For GKE, agree on the
+   exact namespaces first and read again with
+   `{"gcp_installer":{"connection_id":"UUID","namespaces":["NAMESPACE"]}}`.
+   Never infer namespace grants or trust principals. If `installer.script` is
+   null, report `installer.unavailable_reason` and stop.
+3. Confirm the person's named gcloud configuration and project:
+
+   ```sh
+   gcloud --configuration=CONFIGURATION config get-value project
+   ```
+
+   Stop if it differs from the connection's `project_id`. Save `installer.script`
+   exactly as returned and review it with the person. The person runs it
+   unedited in their own terminal and types `yes` at its consent prompt:
+
+   ```sh
+   bash proofline-gcp-setup.sh CONFIGURATION
+   ```
+
+   Never answer the consent prompt, pipe input into the script, or run it where
+   the person cannot see and answer the prompt. Never request a key or token,
+   change a principal, broaden a grant, or bypass a refusal. A missing IAM
+   permission belongs to the project's administrator. If this host cannot run
+   commands, give the person the script and these commands instead.
+4. After installation, describe and propose `integration.gcp.verify` with the
+   connection ID as `parameters.conn_id`. Give the person its `approval_url`.
+   After approval, read the organization again and report the connection's
+   `stage` or `verify_state` exactly as returned. Approval and installation alone
+   do not establish evidence readiness; a pending, failed or empty check does not
+   become a successful observation.
+
+A `CONNECT_GOOGLE_CLOUD` deploy problem's `installer_read` points to the
+organization read and lists the environment's connection IDs. Follow this recipe
+for the named connection; an unavailable installer still needs the reason it
+returns resolved first.
+
 ## Refusals
 
 - A refusal that names a newer revision means that someone changed the setting
