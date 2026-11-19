@@ -213,10 +213,15 @@ verification; the installer runs with the person's own gcloud sign-in.
    do not establish evidence readiness; a pending, failed or empty check does not
    become a successful observation.
 
-A `CONNECT_GOOGLE_CLOUD` deploy problem's `installer_read` points to the
-organization read and lists the environment's connection IDs. Follow this recipe
-for the named connection; an unavailable installer still needs the reason it
-returns resolved first.
+A `CONNECT_GOOGLE_CLOUD` deploy problem needs a verified Cloud Build connection
+to each project its Cloud Monitoring signals read; no other kind of connection
+clears it. Its `installer_read` points to the organization read. Its
+`connections` lists the Cloud Build connections to those projects with their
+`verify_state`: follow steps 2 to 4 for each. Its `projects_without_connection`
+names the projects that have none. For each, start at step 1 with
+`integration.gcp.evidence.create`, a `GCP_CLOUD_BUILD` population, that project
+and the problem's environment. An unavailable installer still needs the reason
+it returns resolved first.
 
 ## Refusals
 
