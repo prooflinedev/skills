@@ -223,6 +223,29 @@ names the projects that have none. For each, start at step 1 with
 and the problem's environment. An unavailable installer still needs the reason
 it returns resolved first.
 
+## Grant an EKS cluster
+
+Proofline reads an EKS cluster only after the person grants the AWS connection's
+role access to it. The grant covers the cluster and namespaces saved in the
+environment's `AWS_EKS_EXPLICIT` evidence adapter, and nothing else.
+
+1. After the change that saves the adapter applies, read the environment with
+   `get_configuration` and `{"environment_id":"UUID"}`. Find the adapter in
+   `delivery_configuration.evidence_adapters` by its `id`, and its `grant`.
+2. If `grant.access_entry_command` is null, report `grant.unavailable_reason`
+   and stop. Most often the AWS connection is not `CONNECTED` yet: finish
+   connecting the account, then read the environment again.
+3. Show the person the adapter's region, cluster and namespaces, and both
+   commands exactly as returned. The person runs `access_entry_command`, then
+   `rbac_command`, unedited, in their own terminal, signed in to the cluster's
+   AWS account. Never run, edit or merge the commands, change the principal or
+   the group, or add a namespace; only the saved adapter selects the cluster and
+   namespaces. The access entry needs the cluster's authentication mode to be
+   `API` or `API_AND_CONFIG_MAP`; changing it belongs to whoever administers the
+   cluster.
+4. Running the commands does not establish that Proofline can read the cluster.
+   Report what later configuration reads return, exactly as returned.
+
 ## Refusals
 
 - A refusal that names a newer revision means that someone changed the setting
