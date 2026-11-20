@@ -1,6 +1,6 @@
 {
   "name": "proofline",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Review local changes with Proofline before a push, read a pull request's findings, fix them and ask Proofline to re-verify the fixes, follow a repository's review guidance, run Proofline setup and change an organization's Proofline settings.",
   "author": { "name": "Proofline", "url": "https://proofline.sh" },
   "homepage": "https://proofline.sh/docs/coding-agents/",

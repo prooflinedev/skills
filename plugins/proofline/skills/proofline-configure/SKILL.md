@@ -245,6 +245,16 @@ environment's `AWS_EKS_EXPLICIT` evidence adapter, and nothing else.
    cluster.
 4. Running the commands does not establish that Proofline can read the cluster.
    Report what later configuration reads return, exactly as returned.
+5. Before you propose a change that removes the adapter or takes a namespace
+   out of it, read the environment and show the person `grant.removal` from the
+   saved adapter: once the change applies, no read returns it, and removing the
+   adapter leaves the objects in the cluster. For a removed cluster the person
+   runs `removal.cluster_objects_command`, each command in
+   `removal.namespace_commands`, then `removal.access_entry_command`. For a
+   removed namespace, they run only that namespace's command. Another
+   environment that selects the same cluster or namespace still reads through
+   the namespace objects and the access entry, so the person keeps those while
+   one does. Never run the commands yourself.
 
 ## Refusals
 
