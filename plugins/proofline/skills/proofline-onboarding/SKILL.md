@@ -59,6 +59,12 @@ citation's exact commit with Git. Never send credentials from a remote URL.
    authorized IDs through `get_configuration` or `list_setup_candidates`; never
    invent one. An `unreadable` operation names why it needs the console: give the
    person `console_url` and that reason.
+   When the person wants a repository `list_setup_candidates` does not return,
+   or asks where to change repository access, give them
+   `github_repository_access_url` from `get_setup_status` as a full URL on its
+   own line, so a terminal makes it clickable. Never describe the way through
+   GitHub's settings instead. Read the candidates again once they have changed
+   access.
 3. Gather the answer from the person's request and repository files you actually
    read. Use the host's question controls when available; otherwise ask in chat
    and wait. Preserve saved values outside the requested change. Offer the choices
